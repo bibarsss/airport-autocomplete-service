@@ -1,3 +1,118 @@
-version: "3"
-
 services:
+  app:
+    container_name: app
+    restart: always
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - ./:/var/www/app
+
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx:1.26.1-alpine
+    volumes:
+      - ./:/var/www/app
+      - ./_docker/nginx:/etc/nginx/conf.d
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+#  version: "3"
+#
+#  services:
+#    nginx:
+#      restart: always
+#      image: nginx:latest
+#      volumes:
+#        - ./:/var/www
+#        - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+#      ports:
+#        - 80:80
+#      depends_on:
+#        - app
+#      container_name: top_nginx
+#      networks:
+#        - top-network
+#
+#    app:
+#      restart: always
+#      build:
+#        context: .
+#        dockerfile: _docker/app/Dockerfile
+#      volumes:
+#        - ./:/var/www
+#      container_name: top_app
+#      depends_on:
+#        - db
+#      networks:
+#        - top-network
+#
+#    queue_worker:
+#      restart: always
+#      build:
+#        context: .
+#        dockerfile: _docker/app/Dockerfile
+#      volumes:
+#        - ./:/var/www
+#      command: /usr/bin/supervisord -n -c /etc/supervisor/conf.d/laravel-supervisor.conf
+#      depends_on:
+#        - app
+#      networks:
+#        - top-network
+#
+#
+#    websocket:
+#      restart: always
+#      build:
+#        context: .
+#        dockerfile: _docker/app/Dockerfile
+#      command: php artisan websockets:serve
+#      volumes:
+#        - ./:/var/www
+#      ports:
+#        - "6001:6001"
+#      depends_on:
+#        - app
+#      networks:
+#        - top-network
+#
+#    db:
+#      image: postgres:16.0
+#      container_name: top_db
+#      restart: always
+#      environment:
+#        - POSTGRES_USER=postgres
+#        - POSTGRES_PASSWORD=postgres
+#      ports:
+#        - "5432:5432"
+#      volumes:
+#        - ./:/var/www
+#        - db:/var/lib/postgresql/data
+#      networks:
+#        - top-network
+#
+#    elasticsearch:
+#      image: elasticsearch:7.17.21
+#      container_name: elasticsearch
+#      restart: always
+#      environment:
+#        - discovery.type=single-node
+#      volumes:
+#        - ./_docker/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+#      ports:
+#        - "9200:9200"
+#        - "9300:9300"
+#      networks:
+#        - top-network
+#
+#
+#  networks:
+#    top-network:
+#      driver: bridge
+#
+#  volumes:
+#    db:
+#      driver: local
