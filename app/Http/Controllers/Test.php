@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Airport;
-use App\Services\Tasks\Airport\ReadAirportJsonTask;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

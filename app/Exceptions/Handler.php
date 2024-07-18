@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -12,11 +13,12 @@ class Handler extends ExceptionHandler
      *
      * @var array<int, string>
      */
-    protected $dontFlash = [
-        'current_password',
-        'password',
-        'password_confirmation',
-    ];
+    protected $dontFlash
+        = [
+            'current_password',
+            'password',
+            'password_confirmation',
+        ];
 
     /**
      * Register the exception handling callbacks for the application.
@@ -26,5 +28,19 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+        if ($request->is('api') || $request->is('api/*')) {
+            $this->renderable(function (ValidationException $exception) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $exception->getMessage(),
+                    'errors'  => $exception->errors(),
+                ], $exception->status);
+            });
+        }
+        return parent::render($request, $e);
     }
 }
